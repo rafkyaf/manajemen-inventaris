@@ -1,0 +1,21 @@
+# ─── Node Modules ──────────────────────────────────────────────────────────────
+backend/node_modules/
+frontend/node_modules/
+node_modules/
+
+# ─── Environment Variables ──────────────────────────────────────────────────────
+backend/.env
+.env
+
+# ─── SQLite (tidak dipakai lagi, tapi jaga-jaga) ───────────────────────────────
+backend/database.db
+backend/database.db-shm
+backend/database.db-wal
+
+# ─── OS Files ──────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ─── Logs ──────────────────────────────────────────────────────────────────────
+*.log
+npm-debug.log*

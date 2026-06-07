@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard – Yoja Dekorasi</title>
+  <meta name="description" content="Dashboard Sistem Manajemen Inventaris & Penjadwalan Yoja Dekorasi" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <div class="app-layout">
+
+    <!-- ══════════════════════════════════════════════
+         SIDEBAR
+    ══════════════════════════════════════════════ -->
+    <aside class="sidebar" id="sidebar">
+      <!-- Logo -->
+      <div class="sidebar-header">
+        <a class="sidebar-logo" href="#">
+          <div class="logo-icon">🌸</div>
+          <div class="logo-text">
+            <span class="logo-name">Yoja Dekorasi</span>
+            <span class="logo-sub">Manajemen Inventaris</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Navigasi -->
+      <nav class="sidebar-nav">
+        <p class="nav-section-label">Menu Utama</p>
+
+        <button class="nav-item active" id="nav-dashboard" onclick="showPage('dashboard')">
+          <span class="nav-icon">🏠</span> Dashboard
+        </button>
+
+        <button class="nav-item" id="nav-barang" onclick="showPage('barang')">
+          <span class="nav-icon">📦</span> Barang Dekorasi
+        </button>
+
+        <button class="nav-item" id="nav-jadwal" onclick="showPage('jadwal')">
+          <span class="nav-icon">📅</span> Jadwal Sewa
+        </button>
+      </nav>
+
+      <!-- Info User & Logout -->
+      <div class="sidebar-footer">
+        <div class="user-card">
+          <div class="user-avatar">👤</div>
+          <div class="user-info">
+            <div class="user-name" id="sidebar-user-name">Loading...</div>
+            <div class="user-role" id="sidebar-user-role">-</div>
+          </div>
+          <button class="btn-logout" onclick="handleLogout()" title="Logout">🚪</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ══════════════════════════════════════════════
+         MAIN CONTENT
+    ══════════════════════════════════════════════ -->
+    <main class="main-content">
+
+      <!-- Topbar -->
+      <header class="topbar">
+        <div>
+          <h1 class="topbar-title" id="topbar-title">Dashboard</h1>
+          <p class="topbar-subtitle" id="topbar-subtitle">Selamat datang kembali!</p>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span style="font-size:13px; color:var(--text-muted);" id="current-date"></span>
+        </div>
+      </header>
+
+      <div class="page-content">
+
+        <!-- ──────────────────────────────────────────────
+             HALAMAN 1: DASHBOARD
+        ─────────────────────────────────────────────── -->
+        <section class="page active" id="page-dashboard">
+
+          <!-- Stats Cards -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon pink">📦</div>
+              <div class="stat-info">
+                <div class="stat-value" id="stat-total-barang">-</div>
+                <div class="stat-label">Total Barang</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon blue">📅</div>
+              <div class="stat-info">
+                <div class="stat-value" id="stat-total-jadwal">-</div>
+                <div class="stat-label">Total Jadwal</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon green">✅</div>
+              <div class="stat-info">
+                <div class="stat-value" id="stat-jadwal-aktif">-</div>
+                <div class="stat-label">Jadwal Dikonfirmasi</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon gold">⏳</div>
+              <div class="stat-info">
+                <div class="stat-value" id="stat-jadwal-pending">-</div>
+                <div class="stat-label">Jadwal Pending</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Jadwal Terbaru -->
+          <div class="section-header">
+            <h2 class="section-title">📋 Jadwal Sewa Terbaru</h2>
+            <button class="btn btn-primary" onclick="showPage('jadwal')">Lihat Semua</button>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Penyewa</th>
+                  <th>Acara</th>
+                  <th>Tanggal</th>
+                  <th>Lokasi</th>
+                  <th>Status</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody id="table-jadwal-dashboard">
+                <tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:30px;">Memuat data...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ──────────────────────────────────────────────
+             HALAMAN 2: BARANG DEKORASI
+        ─────────────────────────────────────────────── -->
+        <section class="page" id="page-barang">
+          <div class="section-header">
+            <h2 class="section-title">📦 Manajemen Barang Dekorasi</h2>
+            <div class="section-actions">
+              <!-- Search Box -->
+              <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input
+                  type="text"
+                  id="search-barang"
+                  placeholder="Cari barang..."
+                  oninput="filterBarang()"
+                />
+              </div>
+              <!-- Filter Kategori -->
+              <select class="filter-select" id="filter-kategori" onchange="filterBarang()">
+                <option value="">Semua Kategori</option>
+                <option value="Backdrop">Backdrop</option>
+                <option value="Bunga">Bunga</option>
+                <option value="Lampu">Lampu</option>
+                <option value="Furnitur">Furnitur</option>
+                <option value="Kain">Kain</option>
+                <option value="Aksesori">Aksesori</option>
+              </select>
+              <!-- Tombol Tambah -->
+              <button class="btn btn-primary" onclick="openModalBarang()">
+                ＋ Tambah Barang
+              </button>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Nama Barang</th>
+                  <th>Kategori</th>
+                  <th>Stok</th>
+                  <th>Harga Sewa</th>
+                  <th>Kondisi</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="table-barang">
+                <tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:30px;">Memuat data...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ──────────────────────────────────────────────
+             HALAMAN 3: JADWAL SEWA
+        ─────────────────────────────────────────────── -->
+        <section class="page" id="page-jadwal">
+          <div class="section-header">
+            <h2 class="section-title">📅 Manajemen Jadwal Sewa</h2>
+            <div class="section-actions">
+              <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input
+                  type="text"
+                  id="search-jadwal"
+                  placeholder="Cari penyewa / acara..."
+                  oninput="filterJadwal()"
+                />
+              </div>
+              <select class="filter-select" id="filter-status" onchange="filterJadwal()">
+                <option value="">Semua Status</option>
+                <option value="Pending">Pending</option>
+                <option value="Dikonfirmasi">Dikonfirmasi</option>
+                <option value="Selesai">Selesai</option>
+                <option value="Dibatalkan">Dibatalkan</option>
+              </select>
+              <button class="btn btn-primary" onclick="openModalJadwal()">
+                ＋ Tambah Jadwal
+              </button>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Penyewa</th>
+                  <th>Acara</th>
+                  <th>Tanggal</th>
+                  <th>Lokasi</th>
+                  <th>Status</th>
+                  <th>Total</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="table-jadwal">
+                <tr><td colspan="8" style="text-align:center; color:var(--text-muted); padding:30px;">Memuat data...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </div><!-- /page-content -->
+    </main>
+  </div><!-- /app-layout -->
+
+  <!-- ══════════════════════════════════════════════
+       MODAL: Form Barang
+  ══════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-barang">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-barang-title">Tambah Barang</h2>
+        <button class="modal-close" onclick="closeModal('modal-barang')">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="form-barang" onsubmit="submitBarang(event)">
+          <!-- Hidden ID untuk mode edit -->
+          <input type="hidden" id="barang-id" />
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Nama Barang *</label>
+              <input type="text" id="barang-nama" class="form-input" placeholder="Backdrop Pernikahan" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Kategori *</label>
+              <select id="barang-kategori" class="form-select" required>
+                <option value="">Pilih Kategori</option>
+                <option value="Backdrop">Backdrop</option>
+                <option value="Bunga">Bunga</option>
+                <option value="Lampu">Lampu</option>
+                <option value="Furnitur">Furnitur</option>
+                <option value="Kain">Kain</option>
+                <option value="Aksesori">Aksesori</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Stok</label>
+              <input type="number" id="barang-stok" class="form-input" placeholder="0" min="0" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Satuan</label>
+              <select id="barang-satuan" class="form-select">
+                <option value="pcs">pcs</option>
+                <option value="set">set</option>
+                <option value="tangkai">tangkai</option>
+                <option value="meter">meter</option>
+                <option value="gulung">gulung</option>
+                <option value="lembar">lembar</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Harga Sewa (Rp)</label>
+              <input type="number" id="barang-harga" class="form-input" placeholder="50000" min="0" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Kondisi</label>
+              <select id="barang-kondisi" class="form-select">
+                <option value="Baik">Baik</option>
+                <option value="Rusak Ringan">Rusak Ringan</option>
+                <option value="Rusak Berat">Rusak Berat</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Keterangan</label>
+            <textarea id="barang-keterangan" class="form-textarea" placeholder="Deskripsi tambahan..."></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('modal-barang')">Batal</button>
+        <button class="btn btn-primary" onclick="submitBarang(event)" id="btn-submit-barang">Simpan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       MODAL: Form Jadwal
+  ══════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-jadwal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-jadwal-title">Tambah Jadwal</h2>
+        <button class="modal-close" onclick="closeModal('modal-jadwal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="form-jadwal" onsubmit="submitJadwal(event)">
+          <input type="hidden" id="jadwal-id" />
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Nama Penyewa *</label>
+              <input type="text" id="jadwal-penyewa" class="form-input" placeholder="Budi Santoso" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">No. HP *</label>
+              <input type="text" id="jadwal-hp" class="form-input" placeholder="081234567890" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Nama Acara *</label>
+            <input type="text" id="jadwal-acara" class="form-input" placeholder="Pernikahan Budi & Ani" required />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Tanggal Mulai *</label>
+              <input type="date" id="jadwal-mulai" class="form-input" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tanggal Selesai *</label>
+              <input type="date" id="jadwal-selesai" class="form-input" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Lokasi *</label>
+            <input type="text" id="jadwal-lokasi" class="form-input" placeholder="Gedung Serbaguna, Jl. Contoh No. 1" required />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Status</label>
+              <select id="jadwal-status" class="form-select">
+                <option value="Pending">Pending</option>
+                <option value="Dikonfirmasi">Dikonfirmasi</option>
+                <option value="Selesai">Selesai</option>
+                <option value="Dibatalkan">Dibatalkan</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Total Harga (Rp)</label>
+              <input type="number" id="jadwal-harga" class="form-input" placeholder="5000000" min="0" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Catatan</label>
+            <textarea id="jadwal-catatan" class="form-textarea" placeholder="Catatan tambahan..."></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('modal-jadwal')">Batal</button>
+        <button class="btn btn-primary" onclick="submitJadwal(event)" id="btn-submit-jadwal">Simpan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       TOAST NOTIFICATION
+  ══════════════════════════════════════════════ -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/dashboard.js"></script>
+
+</body>
+</html>

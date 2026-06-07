@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login – Yoja Dekorasi</title>
+  <meta name="description" content="Login ke Sistem Manajemen Inventaris Yoja Dekorasi" />
+  <link rel="stylesheet" href="css/login.css" />
+</head>
+
+<body>
+
+  <!-- Animasi background -->
+  <div class="bg-animation">
+    <div class="bg-orb"></div>
+    <div class="bg-orb"></div>
+    <div class="bg-orb"></div>
+  </div>
+
+  <div class="login-container">
+    <div class="login-card">
+
+      <!-- Logo & Brand -->
+      <div class="login-brand">
+        <div class="brand-icon">🌸</div>
+        <h1 class="brand-name">Yoja Dekorasi</h1>
+        <p class="brand-tagline">Sistem Manajemen Inventaris & Penjadwalan</p>
+      </div>
+
+      <!-- Tab: Login / Register -->
+      <div class="auth-tabs">
+        <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">Masuk</button>
+        <button class="tab-btn" id="tab-register" onclick="switchTab('register')">Daftar</button>
+      </div>
+
+      <!-- Pesan error -->
+      <div class="error-msg" id="error-msg"></div>
+
+      <!-- ── Form Login ─────────────────────────────────────────── -->
+      <form id="form-login" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label class="form-label" for="login-email">Email</label>
+          <div class="input-wrapper">
+            <span class="input-icon">✉️</span>
+            <input type="email" id="login-email" class="form-input" placeholder="Masukkan Email" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="login-password">Password</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🔒</span>
+            <input type="password" id="login-password" class="form-input" placeholder="Masukkan password" required />
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit" id="btn-login">
+          Masuk ke Dashboard
+        </button>
+      </form>
+
+      <!-- ── Form Register ──────────────────────────────────────── -->
+      <form id="form-register" onsubmit="handleRegister(event)" style="display:none;">
+        <div class="form-group">
+          <label class="form-label" for="reg-nama">Nama Lengkap</label>
+          <div class="input-wrapper">
+            <span class="input-icon">👤</span>
+            <input type="text" id="reg-nama" class="form-input" placeholder="Nama Lengkap" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="reg-email">Email</label>
+          <div class="input-wrapper">
+            <span class="input-icon">✉️</span>
+            <input type="email" id="reg-email" class="form-input" placeholder="email@contoh.com" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="reg-password">Password</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🔒</span>
+            <input type="password" id="reg-password" class="form-input" placeholder="Minimal 6 karakter" required
+              minlength="6" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="reg-role">Role</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🎭</span>
+            <select id="reg-role" class="form-input" style="padding-left:42px;">
+              <option value="staff">Staff</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit" id="btn-register">
+          Buat Akun
+        </button>
+      </form>
+
+      <!-- Footer hint -->
+      <p class="login-footer">
+        Demo: admin@yoja.com / admin123
+      </p>
+
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    // Redirect ke dashboard jika sudah login
+    if (localStorage.getItem('token')) {
+      window.location.href = 'dashboard.html';
+    }
+
+    // ── Switch Tab Login/Register ────────────────────────────────────────────
+    function switchTab(tab) {
+      document.getElementById('error-msg').classList.remove('show');
+
+      if (tab === 'login') {
+        document.getElementById('tab-login').classList.add('active');
+        document.getElementById('tab-register').classList.remove('active');
+        document.getElementById('form-login').style.display = 'block';
+        document.getElementById('form-register').style.display = 'none';
+      } else {
+        document.getElementById('tab-register').classList.add('active');
+        document.getElementById('tab-login').classList.remove('active');
+        document.getElementById('form-register').style.display = 'block';
+        document.getElementById('form-login').style.display = 'none';
+      }
+    }
+
+    // ── Tampilkan Error ──────────────────────────────────────────────────────
+    function showError(msg) {
+      const el = document.getElementById('error-msg');
+      el.textContent = msg;
+      el.classList.add('show');
+    }
+
+    // ── Handle Login ─────────────────────────────────────────────────────────
+    async function handleLogin(e) {
+      e.preventDefault();
+      document.getElementById('error-msg').classList.remove('show');
+
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      const btn = document.getElementById('btn-login');
+
+      // Tampilkan loading state pada tombol
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loading"></span> Memproses...';
+
+      try {
+        const res = await apiFetch('/auth/login', 'POST', { email, password });
+
+        if (res && res.success) {
+          // Simpan token dan data user ke localStorage
+          localStorage.setItem('token', res.data.token);
+          localStorage.setItem('user', JSON.stringify(res.data.user));
+
+          // Redirect ke halaman dashboard
+          window.location.href = 'dashboard.html';
+        } else {
+          showError(res?.message || 'Login gagal. Periksa email dan password.');
+        }
+      } catch (err) {
+        showError('Tidak dapat terhubung ke server. Pastikan backend berjalan.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Masuk ke Dashboard';
+      }
+    }
+
+    // ── Handle Register ───────────────────────────────────────────────────────
+    async function handleRegister(e) {
+      e.preventDefault();
+      document.getElementById('error-msg').classList.remove('show');
+
+      const nama = document.getElementById('reg-nama').value;
+      const email = document.getElementById('reg-email').value;
+      const password = document.getElementById('reg-password').value;
+      const role = document.getElementById('reg-role').value;
+      const btn = document.getElementById('btn-register');
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loading"></span> Mendaftarkan...';
+
+      try {
+        const res = await apiFetch('/auth/register', 'POST', { nama, email, password, role });
+
+        if (res && res.success) {
+          // Setelah register berhasil, pindah ke tab login
+          switchTab('login');
+          const errEl = document.getElementById('error-msg');
+          errEl.style.background = 'rgba(46,204,113,0.12)';
+          errEl.style.borderColor = 'rgba(46,204,113,0.3)';
+          errEl.style.color = '#2ecc71';
+          errEl.textContent = '✅ Akun berhasil dibuat! Silakan login.';
+          errEl.classList.add('show');
+        } else {
+          showError(res?.message || 'Registrasi gagal.');
+        }
+      } catch (err) {
+        showError('Tidak dapat terhubung ke server.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Buat Akun';
+      }
+    }
+  </script>
+
+</body>
+
+</html>
